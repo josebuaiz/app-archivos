@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subir Archivos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #f9f9f9;
+      margin: 5px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Subir Archivos</h1>
+  <form id="uploadForm">
+    <input type="file" name="archivo" id="archivo" required>
+    <button type="submit">Subir</button>
+  </form>
+
+  <h2>Archivos Subidos</h2>
+  <ul id="lista-archivos"></ul>
+
+  <script>
+    // Función para subir archivos
+    document.getElementById('uploadForm').addEventListener('submit', function (e) {
+      e.preventDefault(); // Evitar que el formulario se envíe de forma tradicional
+
+      const fileInput = document.getElementById('archivo');
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('archivo', file);
+
+      // Enviar el archivo al servidor
+      fetch('/subir', {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => response.text())
+        .then(message => {
+          alert(message); // Mostrar mensaje de éxito
+          fileInput.value = ''; // Limpiar el input de archivo
+          listarArchivos(); // Actualizar la lista de archivos
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    });
+
+    // Función para listar archivos
+    function listarArchivos() {
+      fetch('/archivos')
+        .then(response => response.json())
+        .then(data => {
+          const lista = document.getElementById('lista-archivos');
+          lista.innerHTML = ''; // Limpiar la lista actual
+
+          data.forEach(archivo => {
+            const li = document.createElement('li');
+            li.textContent = archivo.nombre;
+            lista.appendChild(li);
+          });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+
+    // Listar archivos al cargar la página
+    listarArchivos();
+  </script>
+</body>
+</html>
